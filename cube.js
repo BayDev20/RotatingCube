@@ -5,33 +5,35 @@ if (!gl) {
     alert('Unable to initialize WebGL. Your browser may not support it.');
 }
 
+// Set up WebGL configuration for opaque rendering
+gl.clearColor(0.0, 0.0, 0.0, 1.0); // Set clear color to black and fully opaque
+gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+gl.enable(gl.DEPTH_TEST); // Enable depth testing
+gl.depthFunc(gl.LEQUAL); // Set the depth function to LESS THAN OR EQUAL
+
+gl.disable(gl.BLEND); // Disable blending
+
 const vsSource = `
     attribute vec4 aVertexPosition;
     attribute vec4 aVertexColor;
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
-    uniform vec3 uLightPosition;
     varying lowp vec4 vColor;
-    varying lowp vec3 vLighting;
 
     void main(void) {
-        vec3 ambientLight = vec3(0.2, 0.2, 0.2);  // Ambient light color
-        vec3 lightDirection = normalize(uLightPosition - (uModelViewMatrix * aVertexPosition).xyz);
-        float directional = max(dot(normalize(vec3(0, 0, 1)), lightDirection), 0.0);
-        
-        vec3 lighting = ambientLight + (1.0 * directional);
-        vColor = aVertexColor * vec4(lighting, 1.0);
+        vColor = vec4(aVertexColor.rgb, 1.0); // Ensure alpha is 1.0 (fully opaque)
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
     }
 `;
 
 const fsSource = `
     varying lowp vec4 vColor;
+
     void main(void) {
         gl_FragColor = vColor;
     }
 `;
-
 function loadShader(gl, type, source) {
     const shader = gl.createShader(type);
     gl.shaderSource(shader, source);
@@ -209,7 +211,7 @@ document.getElementById('colorButton').addEventListener('click', () => {
     let colors = [];
     for (let j = 0; j < faceColors.length; ++j) {
         const c = faceColors[j];
-        colors = colors.concat(c, c, c, c);
+        colors = colors.concat(c, c, c, c); // Apply color to each vertex of the face
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
