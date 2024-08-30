@@ -3,85 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGL Cube with Shadows</title>
+    <title>Interactive WebGL Cube</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1d1d1d;
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: #000000;
+            overflow: hidden;
         }
         .container {
-            text-align: center;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: #2f2f30;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
             padding: 20px;
             max-width: 90vw;
             max-height: 90vh;
-            overflow-y: auto; /* Allows vertical scrolling if content overflows */
-            overflow-x: hidden; /* Prevents horizontal scrolling */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .main-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: stretch;
         }
         canvas {
+            width: 640px;
+            height: 480px;
+            border: 3px solid #000000;
+            border-radius: 8px;
+            background: #1d1d1d;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .bottom-controls {
+            display: flex;
+            justify-content: space-around;
             width: 100%;
-            height: auto;
-            display: block;
-            border: 1px solid #3a3636;
-            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .control-group label {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+        .control-group input[type="range"] {
+            width: 150px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #444;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #d80111;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #d80111;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .control-group input[type="range"]:hover::-webkit-slider-thumb {
+            background: #b3000e;
+        }
+        .control-group input[type="range"]:hover::-moz-range-thumb {
+            background: #b3000e;
         }
         button {
-            background: #007BFF;
-            color: #fff;
+            background: #d80111;
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
-            padding: 10px 20px;
-            font-size: 16px;
+            border-radius: 5px;
+            padding: 12px;
+            font-size: 14px;
             cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.3s ease;
+            transition: background 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            width: 180px;
         }
         button:hover {
-            background: #0056b3;
+            background: #b3000e;
         }
-        input[type="range"] {
-            margin: 10px 0;
-        }
-        label {
-            display: block;
-            margin-top: 5px;
+        button:active {
+            background: #90000b;
         }
         @media (max-width: 768px) {
             .container {
-                max-width: 95vw;
-                max-height: 95vh;
+                flex-direction: column;
+                align-items: center;
+                padding: 15px;
+            }
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            .bottom-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .control-group input[type="range"] {
+                width: 100%;
+            }
+            button {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <canvas id="glCanvas" width="640" height="480"></canvas>
-        <button id="colorButton">Change Colors</button>
-        <button id="toggleDirectionButton">Toggle Rotation Direction</button>
-        <label for="manualRotation">Rotating Cube</label>
-        
-        <!-- New Rotation Axis Buttons -->
-        <button id="rotateXButton">Rotate around X axis</button>
-        <button id="rotateYButton">Rotate around Y axis</button>
-        <button id="rotateZButton">Rotate around Z axis</button>
-        
-        <!-- New Cube Scale Slider -->
-        <label for="scaleSlider">Cube Scale:</label>
-        <input type="range" id="scaleSlider" min="0.5" max="2.0" step="0.1" value="1.0">
-        
-        <!-- Rotation Control Buttons -->
-        <button id="startStopRotationButton">Stop Rotation</button>
-        <button id="rotateLeftButton">Rotate Left</button>
-        <button id="rotateRightButton">Rotate Right</button>
-
+        <div class="main-content">
+            <div class="sidebar">
+                <button id="colorButton" class="icon-button"><i class="fas fa-palette"></i> Change Colors</button>
+                <button id="startStopRotationButton" class="icon-button"><i class="fas fa-pause"></i> Stop Rotation</button>
+                <button id="rotateLeftButton" class="icon-button"><i class="fas fa-arrow-left"></i> Rotate Left</button>
+                <button id="rotateRightButton" class="icon-button"><i class="fas fa-arrow-right"></i> Rotate Right</button>
+                <button id="rotateXButton" class="icon-button"><i class="fas fa-arrows-alt-h"></i> Rotate around X axis</button>
+                <button id="rotateYButton" class="icon-button"><i class="fas fa-arrows-alt-v"></i> Rotate around Y axis</button>
+                <button id="rotateZButton" class="icon-button"><i class="fas fa-sync-alt"></i> Rotate around Z axis</button>
+            </div>
+            <canvas id="glCanvas" width="640" height="480"></canvas>
+        </div>
+        <div class="bottom-controls">
+            <div class="control-group">
+                <label for="zoomSlider">Zoom Scale</label>
+                <input type="range" id="zoomSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+                <label for="scaleXSlider">Scale X</label>
+                <input type="range" id="scaleXSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+                <label for="scaleYSlider">Scale Y</label>
+                <input type="range" id="scaleYSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+                <label for="scaleZSlider">Scale Z</label>
+                <input type="range" id="scaleZSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+            </div>
+        </div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
