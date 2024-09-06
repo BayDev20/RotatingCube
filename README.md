@@ -3,7 +3,7 @@
 ## Overview
 
 This project showcases a rotating 3D cube rendered using WebGL. The cube can be dynamically rotated around different axes, scaled, and its colors can be changed in real-time. The application demonstrates basic 3D transformations and lighting effects.
-![image](https://github.com/user-attachments/assets/cf052316-64a8-4eed-ab56-5e078e098b22)
+<img width="916" alt="Screenshot 2024-09-06 at 4 58 23 PM" src="https://github.com/user-attachments/assets/6e27e7f0-9ee5-4891-a5e4-d8734bc592f8">
 
 
 ## Features
